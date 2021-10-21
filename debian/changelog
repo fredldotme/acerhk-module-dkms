@@ -1,0 +1,111 @@
+acerhk (0.5.35-16~3~ubuntu15.04.1) vivid; urgency=low
+
+  * Auto build.
+
+ -- gruenerTee <gruener.tee.lp@gmail.com>  Mon, 23 Feb 2015 21:09:16 +0000
+
+acerhk (0.5.35-15) unstable; urgency=low
+
+  * debian/patches/3.2.0.patch: Fixes for kernel 3.2
+
+ -- Jacek Chwastek <cogito.16@gmail.com>  Fri, 04 May 2012 15:03:45 +0200
+
+acerhk (0.5.35-14) unstable; urgency=low
+
+  * debian/patches/owner.patch: Removal of ->owner lines
+
+ -- Jacek Chwastek <cogito.16@gmail.com>  Fri, 11 Nov 2011 16:07:29 +0100
+
+acerhk (0.5.35-13a) unstable; urgency=low
+
+  * debian/patches/3.0.0.patch: Fixes for Ubuntu
+
+ -- Jacek Chwastek <cogito.16@gmail.com>  Fri, 19 Aug 2011 00:13:54 +0200
+
+acerhk (0.5.35-13) unstable; urgency=low
+
+  * debian/patches/kernel3.0.patch: Fix build for kernel 3.0
+
+ -- Jacek Chwastek <cogito.16@gmail.com>  Thu, 28 Jul 2011 23:20:55 +0200
+
+acerhk (0.5.35-12) unstable; urgency=low
+
+  * debian/patches/bounds.patch: fix for kenel/bounds.c problem as reported by Peter Steinbach.
+
+ -- Jacek Chwastek <cogito.16@gmail.com>  Thu, 16 Jun 2011 11:40:22 +0200
+
+acerhk (0.5.35-11) unstable; urgency=low
+
+  * Fix m-a build problems for rev 10
+
+ -- Jacek Chwastek <cogito.16@gmail.com>  Sun, 08 May 2011 19:21:32 +0200
+
+acerhk (0.5.35-10) unstable; urgency=low
+
+  * Fix m-a build problems for rev 9
+
+ -- Jacek Chwastek <cogito.16@gmail.com>  Sun, 08 May 2011 13:57:39 +0200
+
+acerhk (0.5.35-9) unstable; urgency=low
+
+  * Fix build failure with kernel 2.6.35 and higher, applied patches by Hendrik Lönngren and Ruslans Tarasovs(Closes: #555828)
+  * Bump Standards-Version.
+
+ -- Jacek Chwastek <cogito.16@gmail.com>  Sun, 08 May 2011 13:57:39 +0200
+
+acerhk (0.5.35-8) unstable; urgency=low
+
+  * Fix build failure with kernel 2.6.30, thanks to Herton Ronaldo Krzesinski
+    and Stefan Lippers-Hollmann for doing all the work (Closes: #533341).
+  * Bump Standards-Version.
+
+ -- Adam Cécile (Le_Vert) <gandalf@le-vert.net>  Wed, 01 Jul 2009 20:48:48 +0200
+
+acerhk (0.5.35-7) unstable; urgency=low
+
+  * Really allow build without kernel headers (Closes: #502086).
+  * Bump Standards-Version.
+
+ -- Adam Cécile (Le_Vert) <gandalf@le-vert.net>  Tue, 31 Mar 2009 10:59:39 +0200
+
+acerhk (0.5.35-6) unstable; urgency=low
+
+  * Upload to unstable.
+  * Fix debian/rules to build without kernel headers (Closes: #502086).
+
+ -- Adam Cécile (Le_Vert) <gandalf@le-vert.net>  Thu, 12 Mar 2009 21:52:14 +0100
+
+acerhk (0.5.35-5) experimental; urgency=low
+
+  * Upload to experimental because of lennny freeze.
+  * Add support for Medion MD97600.
+    Thanks to Peter De Schrijver for this patch (Closes: #494494).
+
+ -- Adam Cécile (Le_Vert) <gandalf@le-vert.net>  Wed, 13 Aug 2008 23:42:27 +0200
+
+acerhk (0.5.35-4) unstable; urgency=low
+
+  * Fix broken i386 auto-detection due to broken 64bits patch.
+    Thanks a lot to Peter De Schrijver for poiting this out. (Closes: #494493).
+  * Bump Standards-Version to 3.8.0.
+
+ -- Adam Cécile (Le_Vert) <gandalf@le-vert.net>  Sun, 10 Aug 2008 18:16:32 +0200
+
+acerhk (0.5.35-3) unstable; urgency=low
+
+  * Add patch for Aspire 5100 series / 64bits mode (Closes: #473671, #478253).
+  * Improve README.Debian.
+
+ -- Adam Cécile (Le_Vert) <gandalf@le-vert.net>  Mon, 28 Apr 2008 19:14:16 +0200
+
+acerhk (0.5.35-2) unstable; urgency=low
+
+  * Drop quilt dependency in acerhk-source debian/rules (Closes: #473447).
+
+ -- Adam Cécile (Le_Vert) <gandalf@le-vert.net>  Sun, 30 Mar 2008 21:29:07 +0200
+
+acerhk (0.5.35-1) unstable; urgency=low
+
+  * Initial release (Closes: #318022).
+
+ -- Adam Cécile (Le_Vert) <gandalf@le-vert.net>  Fri, 29 Feb 2008 20:15:54 +0100

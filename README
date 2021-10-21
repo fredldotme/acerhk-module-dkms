@@ -1,0 +1,215 @@
+
+What is this driver good for?
+*****************************
+
+This driver will give access to the special keys on notebooks of the
+Acer Travelmate series, which are not handled by the keyboard
+driver.
+It also works on notebooks from other manufacturers (some Medion,
+Fujitsu-Siemens, ...).
+
+It also has some other related functionality (depending on the model):
+- controlling LEDs (Mail, Wireless)
+- enable/disable wireless hardware
+
+Usage
+*****
+
+The driver provides a device /dev/misc/acerhk where you can access all
+functions through IOCTL's, look into acerhk.h for their definitions.
+I use devfs and don't care about the minor number. You may want to change
+ACERHK_MINOR in acerhk.h.
+If you don't use devfs you need to create the device node. The device uses
+major 10 (misc character devices), the minor is chosen by the kernel (if
+ACERHK_MINOR equals MISC_DYNAMIC_MINOR) or by yourself (any other value).
+Use something like
+	mknod /dev/acerhk c 10 123
+to create the device node.
+You can also use most functions through procfs. You will find some files in
+/proc/driver/acerhk:
+	led  - write "on" or "off" to set the mail led state
+	key  - read it to get a key press, only useful on non-dritek models
+	       and only if polling is disabled 
+	       This file exists only on non-dritek models
+	info - some information about the driver, including the number of
+	       pending keys
+	wirelessled - write "on" or "off" to set the led state and enable
+		      wlan hardware
+		      On some laptops you need to load the ipw2200 (others
+		      too?) with option "led=1" to make the led work.
+	blueled - write "on" or "off" to set the led state and enable
+		  bluetooth hardware
+		  write a value n >= 50 to let the led blink every n jiffies
+		  Do not use blinking mode where not only the led but also the
+                  bluetooth hardware is controlled!
+
+Probably the best way to use the driver is to let it poll for the keys itself
+and generate real key events. this is the normal case when loading the module
+without an additional parameter :
+
+	modprobe acerhk
+
+or you can use the ioctl as specified in acerhk.h to control the polling. If
+your kernel has keyboard input support you will get real key events when
+pressing the special keys.
+You can then use whatever software you like to make use of those keys,
+i.e. 'hotkeys' or Linux Easy Access Keyboard 'lineakd'. I prefer hotkeys, just
+in case anyone is interested, you can find a sample configuration for this
+programm in doc/acertm.def.
+Gnome >= 2.4 has built in support for multimedia keys (acme), that's
+what I use now.
+
+Have a look at
+ http://mmkc.sourceforge.net/
+
+Note: If you have one of the newer models using dritek hardware you don't need
+polling (nor the file /proc/driver/acerhk/key) to use your buttons. On this
+hardware the driver only needs to send a special command to the keyboard
+controller to make them work. The actual key presses are then handled by the
+normal keyboard driver of the kernel. You can switch of polling by
+loading the module with poll=0. It saves you precious cpu time.
+
+
+Module parameters
+*****************
+name	 values	meaning
+autowlan 0,1	disable(default)/enable automatic switching of wlan hardware
+		on wireless keypress, only useful for older (no
+		dritek-hardware) models, works only will poll=1
+poll	 0,1	disable/enable(default) kernel polling of key events
+verbose  0-4	verbosity level, see below
+usedritek 0,1	disable/enable(default) use of dritek hardware on newer
+		series, needed to activate the keys on such models
+force_series 	set this to the laptop series number you want the driver to
+		assume, skip autodetection (look at function
+		setup_model_features() for possible values)
+
+Debugging
+*********
+
+You can make the the driver be more verbose. To do this, add the following
+parameter when loading the module:
+
+	verbose=<n>
+
+n is an integer, 0 (default) means no additional information while increasing
+values provide an increasing amount of information. Currently 3 is maximum,
+bigger values will have the same effect as 3. The existing verbosity levels
+will generate information about:
+	Level	Information
+	1	state changes and variable initialization
+	2	model probing
+	3	key translation, only known keys
+	4	key translation, also unknown keys
+	5	misc. information (idle values)
+
+If you have rather serious problems you can activate debugging functionality
+in the driver. To do this, uncomment the '#define ACERDEBUG' in acerhk.c. You
+will find a new file in /proc/driver/acerhk, named 'debug'. You cannot read
+from this file, but you can write commands consisting of up to 4 digits. The
+first one specifies the action, while the latter can give additional
+parameters. Implemented are:
+	'd'	decrement module usage counter
+	'i'	increment module usage counter
+
+	'p'	call function pbutton_fct()
+	't'	call function get_thermal_event()
+	'w1x'	call function wbutton_fct_1() with parameter x (0-9)
+	'w2x'	call function wbutton_fct_2() with parameter x (0-9)
+
+	'vx'	change verbosity level to x (0-9)
+
+	'mxyy'	set mapping of key name x to key event yy (hex)
+	'sxx'	send key event xx (hex) to input system
+	'Sxx'	simulate acer key press with code xx (hex)
+
+	'e0'	stop kernel polling
+	'e1'	start kernel polling
+
+Example:
+
+1)	echo d > /proc/driver/acerhk/debug
+
+will decrement the usage counter, very useful if a program using the driver
+segfaulted. This way you can still unload the driver.
+
+2)	echo v4 > /proc/driver/acerhk/debug
+
+will set the verbosity level to maximum.
+
+Keycodes
+********
+
+see doc/keycodes
+Also see http://bernd-wurst.de/linux/tm800.php#mmkeys (only in german)
+
+If you have one of the newer models with the dritek hardware, use kernel 2.6
+and get (after enabling it) kernel messages of the form:
+
+	atkbd.c: Unknown key pressed (translated set 2, code 0xf4 on 
+	isa0060/serio0). 
+	atkbd.c: Use 'setkeycodes e074 <keycode>' to make it known.
+
+then you should do exactly what your told. In this case you could do
+
+	setkeycodes e074 158
+
+to map the button with scancode e074 (hex) to keycode 158 (decimal). To find
+out the scancodes of the buttons either look into the kernel log or into the
+file MMKEYBD.CFG of the windows launch manager package. There you should find
+lines like this:
+
+Key 1 = 1,E0,74,E0,F4,F500,P1
+          ** **            **
+
+The important information is marked in the example above. The numbers give the
+scancode produced by the button which's name is given last.
+The keycode you give as parameter to setkeycodes is one out of the header file
+linux/input.h, in the example above the one for KEY_BACK.
+Important note: I received mails from a number of people where setkeycodes
+rejected keycodes above a certain value. This is caused by an outdated version
+of setkeycodes, use a more recent one.
+To ease the setup of keymappings for the newer series I will try to include
+setup scripts for the different notebook series. If I have enough time to
+spare I will perhaps expand the driver itself do to that.
+
+How does it work?
+*****************
+
+The driver is based on the windows Me for series 610 driver and
+resembles its structure and functionality.
+Key presses are events, which are stored in a FIFO queue with 31
+entries. You can access the event count via CMOS nvram, but the access to
+the actual queue (and other functionality like switching the mail led) is
+done through calling a system ROM function.
+Upon loading the driver looks for this function, if it cannot find it,
+loading aborts.
+Newer Dritek Hardware:
+Button handling is done entirely by the EC (embbedded/environment
+controller) which behaves like an extended keyboard controller. My
+driver only enables/disables this extension.
+
+
+Credits
+*******
+
+Leif Jensen, whose driver inspired me to do the probing stuff
+http://www.math.columbia.edu/~jensen/linux/acertm/
+
+Thanks to all who contributed patches to this driver or who just tried it out
+on their laptops, without them it wouldn't support anything else but my
+TM 613.
+
+Contact
+*******
+
+If you have problems with the driver, please include the following information:
+1. name of your laptop (e.g. Acer TM 4001)
+2. content of /proc/driver/acerhk/info, if available
+3. kernel output after loading the module with verbose=2
+
+Email: Olaf Tauber <otauber@web.de>
+
+The latest version can be found here:
+
+http://www.informatik.hu-berlin.de/~tauber/acerhk

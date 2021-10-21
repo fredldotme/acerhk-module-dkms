@@ -1,0 +1,61 @@
+Documentation of possible IOCTLs used by acerhk
++++++++++++++++++++++++++++++++++++++++++++++++
+
+ACERHK_GET_KEYCOUNT
+	Read the number of unread key presses in queue
+	Parameter: pointer to char
+	
+ACERHK_GET_KEYID
+	Read the code of the first key press (oldest) in queue
+	Parameter: pointer to char
+
+ACERHK_CONNECT
+	Don't know what it does, used in windows driver
+
+ACERHK_DISCONNECT
+	Don't know what it does, used in windows driver
+
+ACERHK_GET_THERMAL_EVENT
+	Don't know what it does, used in windows driver
+	Parameter: pointer to short
+
+ACERHK_MAIL_LED_OFF
+	Switch off the LED of the mail button(if available)
+
+ACERHK_MAIL_LED_ON
+	Switch on the LED of the mail button (if available)
+
+ACERHK_START_POLLING
+	Start polling (and translation to key events) in kernel
+
+ACERHK_STOP_POLLING
+	Stop polling in kernel
+
+ACERHK_GET_KEY_MAP
+       	Get mapping of key names to key events
+	Parameter: pointer to t_map_name2event
+
+ACERHK_SET_KEY_MAP
+       	Set mapping of key names to key events
+	Parameter: pointer to t_map_name2event
+
+IOCTLs used by windows driver
++++++++++++++++++++++++++++++
+device name:
+\DosDevices\HOTKEY
+\Device\HOTKEY
+
+
+630 series:
+0x222404
+	Get CMOS index
+0x222408
+	ACERHK_GET_KEYCOUNT
+0x22240C
+	ACERHK_GET_KEYID
+0x222410
+	ACERHK_MAIL_LED_OFF/ACERHK_MAIL_LED_ON
+0x222414
+	ACERHK_CONNECT/ACERHK_DISCONNECT
+0x222418
+	ACERHK_GET_THERMAL_EVENT	

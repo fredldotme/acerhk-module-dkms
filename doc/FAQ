@@ -1,0 +1,160 @@
+******************************************************************************
+
+Q: The driver works perfectly when using force_series, what is needed to add
+autodetection?
+
+A: I need the model name of the laptop, if you do not see a usable name in
+/proc/driver/acerhk/info please try the tools dmidecode/biosdecode/vpddecode
+to find this name. You can also load the driver and then look into the bios
+directly by scanning the memory which is mapped by the driver.
+
+******************************************************************************
+
+Q: I have a (non Acer) notebook which is not recognized by your driver but I
+think it should. What information do you need?
+
+A: If it is a non-Acer laptop I would like to know, what makes you think that
+your laptop would work with my driver. A windows driver/utility package of the
+name "LaunchManager" or "EasyButton" is a good hint. If it is clear that your
+hardware is okay, I need the string with your model name from BIOS. Please
+don't ask me how to do it. To find out which functions of your laptop the
+driver will support, it is best, if you can tell me where to get this
+"LaunchManager" or "EasyButton" package.
+If it is a model from 2003 or newer then chances are good that it's a dritek
+type one. In this case try the option "force_series=6000" to at least enable
+the keys.
+
+******************************************************************************
+
+Q: Why can't I activate my wireless hardware on Acer TM 420/430/6000/8000 ...?
+
+A: On many newer laptops (Dritek type) I do not now how to do this,
+sorry. Someone would need to find out how windows does it. Volunteers?
+
+******************************************************************************
+
+Q: I know that wireless hardware is supported on my Aspire 1690/TravelMate4600,
+but I cannot get it to work, why?
+
+A: On these model (and similar) the wireless hardware is controlled on two
+different levels. One is controlled by acerhk's xxxled file, the other level
+is controlled by the key itself. To actually activate the hardware you need to
+write '1' to the xxled file and you need to press the corresponding button.
+Example:
+echo 1 > /proc/driver/acerhk/wirelessled
+<if still not working, press Wlan button>
+
+******************************************************************************
+
+Q: Why do I always get 0x00 from /proc/driver/acerhk/key?
+
+A1: Check the type of your laptop if /proc/driver/acerhk/info. If it is
+"Dritek", you cannot read the keys from the driver. Starting from version
+0.5.17 you get "n/a" out of the key file in this case.
+A2: If you have polling enabled (default) you will almost always read 0x00
+from this file. This is because in every polling cycle it is checked for key
+events and if there is one, it is instantly translated and sent to the kernel
+input system. Starting with version 0.5.20 you get "n/a" out of the key file
+in this case.
+
+******************************************************************************
+
+Q: When I press a key, nothing happens. Why are they not working?
+
+A: Most keys won't do anything by themself. If nothing happens, that is
+because no programm knows what to do with the new keys. You need to assign
+actions to them, use the hotkey manager of your desktop to do that. If
+using Gnome, you find it under desktop settings - keyboard shortcuts.
+
+******************************************************************************
+
+Q: The driver works for my laptop, but not all of the keys are working. What
+can I do?
+
+A: There are some keys/key combinations which generate an ACPI event,
+e.g. Fn+F4 on some models or the lid button.
+If you have a different laptop than the one which got detected (or you used
+"force_series=xxx" anyway), then it is possible that the mapping acerhk uses
+to translate the codes from the buttons to key events is wrong.
+In this case, load the driver with "verbose=4" and press the buttons which do
+not work. Then look for messages from acerhk of the form "translated acer key
+code xxx to no key". Note these codes together with the button they belong to
+and send me this list along with the model name of your laptop.
+If you do not see a usable name in /proc/driver/acerhk/info please try the
+tools dmidecode/biosdecode/vpddecode to find this name.
+
+******************************************************************************
+Q: I press the wireless key but the hardware doesn't get activated, what's wrong?
+
+A: The driver is only on older models (non-Dritek type) able to read
+keypresses by itself and toggle the hardware/LED automatically (with option
+autowlan=1). On Dritek type models this must be done by writing the desired
+value to one of the wireless files in the proc filesystem. In most
+cases this would be /proc/drivers/acerhk/wirelessled to control wlan
+hardware (blueled for Bluetooth hardware):
+
+echo 1 > /proc/driver/acerhk/wirelessled
+
+But you could use a hotkey manager to do that automatically when you press the
+button. In this case be aware that on some models the button generates
+different key events according to the actual state of the wireless hardware.
+
+******************************************************************************
+
+Q: My keys do not work, I only get kernel messages of the form:
+atkbd.c: Unknown key pressed (translated set 2, code 0xf4 on isa0060/serio0).
+atkbd.c: Use 'setkeycodes e074 <keycode>' to make it known.
+
+A: Press each of the buttons and note the mentioned
+code for it (e074 in this example). You should get a list like this:
+P1	e074
+P2	e075
+...
+If you are finished with it, look into /usr/include/linux/input.h, using
+your favourite text viewer/editor. Search for "KEY_STOP". You should see
+the following line in the file:
+
+#define KEY_STOP                128
+
+After it many more lines with equal #defines should be visible. Look for
+key names which best match the names of your buttons, e.g. KEY_PROG1,
+KEY_WWW and so on. Note the numbers assigned to the names, for KEY_STOP
+this would be 128, for KEY_PROG1 148.
+Now you have a list with three items per entry, your button, a code
+from the kernel messages and a corresponding number from the file
+linux.h:
+P1	e074	148
+P2	e075	149
+...
+For each line in this list, issue the setkeycodes command as mentioned
+in the kernel message:
+setkeycodes e074 148
+setkeycodes e075 149
+...
+After doing that, the keys should be available for your hotkey manager.
+
+******************************************************************************
+
+Q: My WLAN hardware gets activated through /proc/driver/acerhk/wirelessled,
+but the LED is not working. Why not?
+
+A: Try if adding the option "led=1" to your wireless module helps. For the
+ipw2200 driver it works, as Didier CLERC <didier@linuxbourg.ch> found out:
+
+	I have to load the module "ipw2200" with the option "led=1", then
+	the wifi button blinks until a network is detected.
+
+******************************************************************************
+
+Q: I have an unsupported laptop, but the driver works when I force the series
+to a type like 610 or 2100. Only my buttons doesn't get recognized, why?
+
+A: On models of the type TM_new (like TravelMate 600, 2100 and many other, see
+acerhk.c, function setup_model_features for details) the buttons use different
+codes on different models. Therefore the driver needs to know these codes. You
+can get them if you load the driver with verbose=4, press the buttons and key
+combinations (Fn+xx) you are interested in and look for kernel messages of the
+form "acerhk: translated acer key code 0xnn to ...". Write down the key code
+for each button/key combination and send them to me so I can patch the
+driver. I also need your model string to make autodetection work, so include
+/proc/driver/acerk/info.

@@ -1,0 +1,16 @@
+2003-02-28 Version 0.5.0
+	completely changed key polling/translation
+	support for more series
+2002-07-06 Version 0.4.2
+	added debug functionality
+	bugfix with 520/210
+2002-06-24 Version 0.4.1
+	added support for TM 210 series
+	removed nvram dependency
+2002-06-15 Version 0.4
+	added model recognition
+	added kernel polling an key event generation
+	added support for 520 series
+
+2002-04-29 Version 0.3
+	Initial release

@@ -1,0 +1,26 @@
+Source: acerhk
+Section: misc
+Priority: optional
+Maintainer: Jacek Chwastek <cogito.16@gmail.com>
+Build-Depends: debhelper (>= 7.0.50~), bzip2, quilt
+Standards-Version: 3.9.1
+Homepage: http://www.cakey.de/acerhk/
+
+Package: acerhk-source
+Architecture: all
+Depends: module-assistant, debhelper (>= 7), make, bzip2
+Description: Source for the acerhk driver
+ This package provides the source code for the acerhk kernel modules.
+ .
+ This driver will give access to the special keys on notebooks of the
+ Acer Travelmate series, which are not handled by the keyboard
+ driver.
+ .
+ It also works on notebooks from other manufacturers (some Medion,
+ Fujitsu-Siemens, Compal, Xbook...).
+ .
+ It also has some other related functionality (depending on the model):
+   * controlling LEDs (Mail, Wireless)
+   * enable/disable wireless hardware
+ .
+ Kernel source or headers are required to compile these modules.

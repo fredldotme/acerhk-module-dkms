@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<CONFIG model="Medion MD 95400 series">
+
+<userdef keycode="236" command="/usr/bin/thunderbird">Mail</userdef>
+<userdef keycode="178" command="/usr/bin/firefox">Web</userdef>
+<userdef keycode="162" command="/usr/bin/xmms --play-pause">Play/Pause</userdef>
+<userdef keycode="164" command="/usr/bin/xmms --stop">Stop</userdef>
+<userdef keycode="144" command="/usr/bin/xmms --rew">Previous</userdef>
+<userdef keycode="153" command="/usr/bin/xmms --fwd">Next</userdef>
+<userdef keycode="174" command="/usr/bin/aumix -v -5">Leiser</userdef>
+<userdef keycode="176" command="/usr/bin/aumix -v +5">Lauter</userdef>
+<userdef keycode="160" command="/usr/bin/aumix -v 0"></userdef>
+
+</CONFIG>

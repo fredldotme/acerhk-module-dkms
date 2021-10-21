@@ -1,0 +1,109 @@
+Installation
+************
+
+1. You need the kernel sources (or kernel headers for your kernel)
+installed to compile the driver.
+
+2. Your kernel needs loadable module support with version information for
+modules enabled. Usage of procfs is highly recommended.
+If you want the driver to generate regular keyboard events using
+kernel version 2.4 you need the input system of the kernel enabled
+(Input core support AND keyboard support). In kernel version 2.6 all
+needed functionality should be available by default.
+
+In most cases you can skip the next step, the Makefile tries do determine
+the correct directory on its own. Change KERNELSRC only if the autodetection
+does not work for you. Otherwise proceed directly with step 4.
+
+3. Before you compile the driver, change KERNELSRC in the makefile to your
+path to the kernel build environment. If you are using a self compiled kernel,
+point it to the root of your sources. If you are using a packaged kernel of
+your distribution, install the package with kernel headers
+(Debian:kernel-headers) and point KERNELSRC to where the headers and config
+files are located. If you are using Debian, this
+would be "/lib/modules/<kernelversion>/build".
+
+4. Do:
+	make
+to compile the driver. If you run into problems because of the makefile not
+recognizing your kernel version correctly, try this:
+	make acerhk.o		- kernel version 2.4
+	make acerhk.ko		- kernel version 2.6
+
+5. Do:
+	make install
+to automatically copy the driver into the kernel module library. If you've
+done so, proceed directly with step 8. If you want to install the module
+binary yourself (because you want a different location), use steps 6 and 7
+instead.
+
+6. Copy the created file "acerhk.o" ("acerhk.ko" with version 2.6) to your
+kernel modules path. In Debian this could be
+"/lib/modules/<kernelversion>/kernel/drivers/extra/".
+
+7. Update module dependencies: depmod -a
+
+8. Try loading the module with:
+	insmod/modprobe acerhk
+If it succeeds - congratulations! If you have procfs enabled, you can try the
+following to test the driver:
+
+Non-Dritek models:
+Press one of the special keys and after that:
+	cat /proc/driver/acerhk/key
+to read the (hexadezimal) code of the key pressed. It should
+be different from 0x00.
+(Note: You mustn't have the polling feature enabled for this to work, so load
+ the module with poll=0)
+
+Dritek-models:
+Press one of the special keys and look for the generated key with "xev". If
+there is none, then you should see at least kernel messages about using
+setkeycodes.
+
+If your notebook has a mail led you can try this:
+	echo on > /proc/driver/acerhk/led
+This should sete the mail led to blinking mode.
+	echo off > /proc/driver/acerhk/led
+turns it off again.
+See README for further usage information.
+
+If the module didn't load look into your kernel messages what went wrong. If
+you see something like the following lines:
+	acerhk: could not find request handler
+	acerhk: can't find ROM area
+	acerhk: unloaded
+then your hardware is not recognized. See README for supported models. If it
+won't work on your notebook, please contact me and I will see if I can fix
+that.
+
+Integrating the driver into kernel tree version 2.6
+***************************************************
+
+If you want the driver to fully integrate into the kernel tree of version 2.6
+proceed as follows:
+1. Copy the acerhk directory into the source tree, for instance
+	/usr/src/linux/drivers/misc/acerhk
+2. Include the driver directory in the config files. Add to the Kconfig
+file of the parent directory(/usr/src/linux/drivers/misc/Kconfig):
+
+config ACERHK
+       tristate "Acerhk driver"
+       depends on EXPERIMENTAL
+       ---help---
+               This is an experimental acer keyboard driver for
+               acer laptops
+
+3. Include the acer directory in it's parents
+Makefile(/usr/src/linux/drivers/misc/Makefile):
+
+obj-$(CONFIG_ACERHK)   +=      acerhk/
+
+4. In this case you also need to activate the misc drivers first
+(/usr/src/linux/drivers/Kconfig):
+
+source "drivers/misc/Kconfig"
+
+If that's done, you should be able to select the driver from the configuration
+programm and build the module.
+

@@ -1,0 +1,31 @@
+Source: acerhk
+Section: misc
+Priority: optional
+Maintainer: Jacek Chwastek <cogito.16@gmail.com>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.9.1
+
+Package: acerhk-modules-_KVERS_
+Architecture: any
+Provides: acerhk-modules
+Description: acerhk modules for Linux (kernel _KVERS_).
+ This package contains the set of loadable kernel modules for the
+ acerhk driver.
+ .
+ This driver will give access to the special keys on notebooks of the
+ Acer Travelmate series, which are not handled by the keyboard
+ driver.
+ .
+ It also works on notebooks from other manufacturers (some Medion,
+ Fujitsu-Siemens, Compal, Xbook...).
+ .
+ It also has some other related functionality (depending on the model):
+   * controlling LEDs (Mail, Wireless)
+   * enable/disable wireless hardware
+ .
+ This package contains the compiled kernel modules for _KVERS_
+ .
+ If you have compiled your own kernel, you will most likely need to build
+ your own acerhk-modules. The acerhk-source package has been
+ provided for use with the Debian's module-assistant or kernel-package
+ utilities to produce a version of acerhk-modules for your kernel.

@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<CONFIG model="Acer Travelmate 610 series">
+
+<!--
+Possible tags are (not all are implemented) :
+
+    PrevTrack
+    Play
+    Eject
+    Stop
+    Pause
+    NextTrack
+    VolUp
+    VolDown
+    Mute
+    WebBrowser
+    Email
+    Help
+    WakeUp
+    PowerDown
+    Communities
+    Search
+    Idea
+    Shopping
+    Print
+    Go
+    Record
+    Shell
+    Transfer
+    MyDocuments
+    MyComputer
+    Calculator
+    iNews
+    Sleep
+    Suspend
+    Rewind
+    Rotate
+-->
+
+
+  <!-- User define functions -->
+
+  <userdef keycode="129" command="gnomecc">Konfiguration</userdef>
+
+  <userdef keycode="93" command="/home/ole/bin/audiotoggle.sh">Mute/Unmute</userdef>
+  <userdef keycode="176" command="aumix -v+5">Lauter</userdef>
+  <userdef keycode="174" command="aumix -v-5">Leiser</userdef>
+  <Help keycode="226"/>
+  <userdef keycode="153" command="multi-gnome-terminal --use-factory --start-factory-server --tclass=ole --geometry=80x49">Terminal</userdef>
+  <userdef keycode="144" command="xemacs">XEmacs</userdef>
+  <userdef keycode="171" command="xmms --play-pause">Play/Pause</userdef>
+  <userdef keycode="147" command="xmms --play-pause">Play/Pause</userdef>
+  <Email keycode="236"/>
+  <Webbrowser keycode="178"/>
+
+</CONFIG>

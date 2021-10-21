@@ -1,0 +1,26 @@
+standard X keycodes with older (acerhk controlled) hardware from Acer
+*********************************************************************
+help    (Fn+F1)		226		
+setup   (Fn+F2)		129
+p1			153
+p2			144
+p3			171
+www			178
+mail			236
+wireless		147
+power   (Fn+F3)		222
+mute    (Fn+F8)		166
+volup   (Fn+Up)		158
+voldn   (Fn+Down)	165
+
+standard X keycodes with newer (acerhk activated) hardware from Dritek
+**********************************************************************
+help    (Fn+F1)		226
+setup   (Fn+F2)		129
+p1			153
+p2			144
+www			178
+mail			236
+volup   (Fn+Up)		176
+voldn   (Fn+Down)	174
+mute    (Fn+F8)		160
