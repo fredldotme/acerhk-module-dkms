@@ -8,7 +8,7 @@ Homepage: http://www.cakey.de/acerhk/
 
 Package: acerhk-modules-dkms
 Architecture: all
-Depends: module-assistant, debhelper (>= 7), make, bzip2
+Depends: debhelper (>= 7), make, bzip2
 Description: Source for the acerhk driver
  This package provides the source code for the acerhk kernel modules.
  .
