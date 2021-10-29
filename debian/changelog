@@ -1,4 +1,4 @@
-acerhk (0.6) buster; urgency=low
+acerhk (0.6) bullseye; urgency=low
 
   * Adapt to kernel version found in Debian Bullseye/MX Linux 21.
 
