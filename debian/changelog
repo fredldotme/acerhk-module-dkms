@@ -1,3 +1,9 @@
+acerhk (0.6) buster; urgency=low
+
+  * Adapt to kernel version found in Debian Bullseye/MX Linux 21.
+
+ -- Alfred Neumayer <dev.beidl@gmail.com>  Thu, 21 Oct 2021 19:40:08 +0200
+
 acerhk (0.5.35-16~3~ubuntu15.04.1) vivid; urgency=low
 
   * Auto build.
