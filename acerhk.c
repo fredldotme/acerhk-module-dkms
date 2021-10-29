@@ -1,6 +1,6 @@
 /*********************************************************************
  * Filename:      acerhk.c
- * Version:       0.5
+ * Version:       0.6
  *
  * Copyright (C) 2002-2007, Olaf Tauber (olaf-tauber@versanet.de)
  *
@@ -47,6 +47,14 @@
 
 #include <linux/version.h>
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
+#define KERNEL510
+#endif
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,19,0)
+#define KERNEL419
+#endif
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
 #define KERNEL310
 #endif
@@ -57,7 +65,9 @@
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
 #define KERNEL26
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,19,0)
 #include <linux/moduleparam.h>
+#endif
 #else
 #include <linux/modversions.h>
 #endif
@@ -66,7 +76,6 @@
 #define STATIC_INPUT_DEV
 #endif
 
-#include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/kmod.h>
@@ -78,13 +87,14 @@
 #include <linux/proc_fs.h>
 #include <asm/uaccess.h>
 #include <linux/delay.h>
+#include <linux/module.h>
 
 #include "acerhk.h"
 
 /* #define ACERDEBUG */
 /* #define DUMMYHW */
 
-#define ACERHK_VERSION "0.5.35"
+#define ACERHK_VERSION "0.6"
 #define MODULE_NAME "acerhk"
 
 /* maximum number of polling loops, adjust it if needed to values between
@@ -107,7 +117,7 @@ static int wlan_state=-1;
 static int bluetooth_state=-1;
 static int verbose;
 static unsigned int force_series;
-#ifdef KERNEL26
+#if defined(KERNEL26) || defined(KERNEL510)
 module_param(poll, int, 0444);
 module_param(autowlan, int, 0444);
 module_param(usedritek, int, 0444);
@@ -2284,7 +2294,7 @@ static t_key_names transl8_key_code(int keycode)
 }
 
 /* polling timer handler */
-static void acerhk_poll_event(unsigned long save_size)
+static void acerhk_poll_event(struct timer_list *indx)
 {
 /* #ifndef DUMMYHW */
 #if !(defined(DUMMYHW) || defined(__x86_64__))
@@ -2305,7 +2315,7 @@ static void acerhk_poll_event(unsigned long save_size)
 }
 
 /* blinking timer handler; added by Antonio Cuni */
-static void acerhk_blink_event(unsigned long not_used)
+static void acerhk_blink_event(struct timer_list *indx)
 {
   if (acerhk_blueled_blinking != -1) {
     acerhk_blueled_blinking = !acerhk_blueled_blinking;
@@ -2362,7 +2372,7 @@ static void init_input(void)
   if(err)
     printk(KERN_INFO"acerhk: error input_register_device");
 // -- end
-  init_timer(&acerhk_timer_poll);
+  //init_timer(&acerhk_timer_poll);
   acerhk_polling_state = 0;
 }
 
@@ -2381,9 +2391,10 @@ static void stop_polling(void)
 static void start_polling(void)
 {
   if (acerhk_polling_state != 1) {
-    acerhk_timer_poll.function = acerhk_poll_event;
+/*    acerhk_timer_poll.function = acerhk_poll_event;
     acerhk_timer_poll.expires = jiffies + acerhk_polling_delay;
-    acerhk_timer_poll.data = get_nr_events();
+    acerhk_timer_poll.data = get_nr_events();*/
+    timer_setup(&acerhk_timer_poll, acerhk_poll_event, jiffies + acerhk_polling_delay);
     add_timer(&acerhk_timer_poll);
     acerhk_polling_state = 1;
     if (acerhk_type == TM_dritek) {
@@ -2403,9 +2414,11 @@ static void start_blinking(void)
 {
   if (acerhk_blueled_blinking == -1) {
     // blinking was disabled... enable it!
-    acerhk_timer_blinking.function = acerhk_blink_event;
+    /*acerhk_timer_blinking.function = acerhk_blink_event;
     acerhk_timer_blinking.expires = jiffies + acerhk_blueled_blinking_delay;
     acerhk_timer_blinking.data = 0; // not used
+    */
+    timer_setup(&acerhk_timer_blinking, acerhk_blink_event, jiffies + acerhk_blueled_blinking_delay);
     add_timer(&acerhk_timer_blinking);
     acerhk_blueled_blinking = 0;
     if (verbose)
@@ -2879,33 +2892,33 @@ static int acerhk_proc_debug(struct file* file, const char* buffer,
 
 // -- begin
 #ifdef KERNEL310
-static const struct file_operations acerhk_info_proc_fops = {
-  .owner = THIS_MODULE,
-  .read = acerhk_proc_info,
+static const struct proc_ops acerhk_info_proc_fops = {
+  //.owner = THIS_MODULE,
+  .proc_read = acerhk_proc_info,
 };
 
-static const struct file_operations acerhk_keys_proc_fops = {
-  .owner = THIS_MODULE,
-  .read = acerhk_proc_key,
+static const struct proc_ops acerhk_keys_proc_fops = {
+  //.owner = THIS_MODULE,
+  .proc_read = acerhk_proc_key,
 };
-static const struct file_operations acerhk_led_proc_fops = {
-  .owner = THIS_MODULE,
-  .write = acerhk_proc_led,
+static const struct proc_ops acerhk_led_proc_fops = {
+  //.owner = THIS_MODULE,
+  .proc_write = acerhk_proc_led,
 };
 
-static const struct file_operations acerhk_wled_proc_fops = {
-  .owner = THIS_MODULE,
-  #ifdef KERNEL310
-  .read = acerhk_proc_wled_read,
+static const struct proc_ops acerhk_wled_proc_fops = {
+  //.owner = THIS_MODULE,
+  #ifdef KERNEL510
+  .proc_read = acerhk_proc_wled_read,
   #endif
-  .write = acerhk_proc_wirelessled,
+  .proc_write = acerhk_proc_wirelessled,
 };
-static const struct file_operations acerhk_bled_proc_fops = {
-  .owner = THIS_MODULE,
-  #ifdef KERNEL310
-  .read = acerhk_proc_bled_read,
+static const struct proc_ops acerhk_bled_proc_fops = {
+  //.owner = THIS_MODULE,
+  #ifdef KERNEL510
+  .proc_read = acerhk_proc_bled_read,
   #endif
-  .write = acerhk_proc_blueled,
+  .proc_write = acerhk_proc_blueled,
 };
 #endif
 // --end
@@ -2929,7 +2942,7 @@ static int acerhk_proc_init(void)
      /* now create several files, first general info ... */
 
 // -- begin
-    #ifdef KERNEL310
+    #ifdef KERNEL510
     entry = proc_create("info", 0444, proc_acer_dir, &acerhk_info_proc_fops);
     #else
     entry = create_proc_read_entry("info",
@@ -2950,7 +2963,7 @@ static int acerhk_proc_init(void)
       /* ... last pressed key ... */
 
 // -- begin
-      #ifdef KERNEL310
+      #ifdef KERNEL510
       entry = proc_create("key", 0444, proc_acer_dir, &acerhk_keys_proc_fops);
       #else
       entry = create_proc_read_entry("key",
@@ -2971,7 +2984,7 @@ static int acerhk_proc_init(void)
         /* ... and led control file */
 
 // -- begin
-	#ifdef KERNEL310
+	#ifdef KERNEL510
 	entry = proc_create("led", 0222, proc_acer_dir, &acerhk_led_proc_fops);
 	#else
         entry = create_proc_entry("led", 0222, proc_acer_dir);
@@ -2987,7 +3000,7 @@ static int acerhk_proc_init(void)
         }
         else {
 // -- begin
-	  #ifndef KERNEL310
+	  #ifndef KERNEL510
           entry->write_proc = acerhk_proc_led;
 	  #endif
 // -- end
@@ -2997,7 +3010,7 @@ static int acerhk_proc_init(void)
           /* ... and wireless led controll file */
 
 // -- begin
-	  #ifdef KERNEL310
+	  #ifdef KERNEL510
 	  entry = proc_create("wirelessled", 0666, proc_acer_dir, &acerhk_wled_proc_fops);
 	  #else
           entry = create_proc_entry("wirelessled", 0222, proc_acer_dir);
@@ -3023,7 +3036,7 @@ static int acerhk_proc_init(void)
 #endif
             /* ... and bluetooth led controll file */
 // -- begin
-	    #ifdef KERNEL310
+	    #ifdef KERNEL510
 	    entry = proc_create("blueled", 0666, proc_acer_dir, &acerhk_bled_proc_fops);
 	    #else
             entry = create_proc_entry("blueled", 0222, proc_acer_dir);
@@ -3255,7 +3268,7 @@ static void __devinit model_init(void)
     enable_dritek_keyboard();
   }
   /* added by Antonio Cuni */
-  init_timer(&acerhk_timer_blinking);
+  //init_timer(&acerhk_timer_blinking);
 }
 
 
@@ -3321,7 +3334,7 @@ static int __devinit acerhk_probe(struct platform_device *dev)
       enable_dritek_keyboard();
     if (poll)
       start_polling();
-    init_timer(&acerhk_timer_blinking);
+    //init_timer(&acerhk_timer_blinking);
 #else
     bios_routine = find_hk_area();
     if (!force_series)

@@ -1,7 +1,9 @@
 # change KERNELSRC to the location of your kernel build tree only if
 # autodetection does not work
 #KERNELSRC=/usr/src/linux
-KERNELSRC?=/lib/modules/`uname -r`/build
+KVER?=$(shell uname -r)
+KVER_STRIP?=$(shell echo $(KVER) | sed "s/-686-pae//g")
+KERNELSRC?=/lib/modules/$(KVER)/build
 # Starting with 2.6.18, the kernel version is in utsrelease.h instead of version.h, accomodate both cases
 KERNELVERSION=$(shell awk -F\" '/REL/ {print $$2}' $(shell grep -s -l REL $(KERNELSRC)/include/linux/version.h $(KERNELSRC)/include/linux/utsrelease.h $(KERNELSRC)/include/generated/utsrelease.h))
 KERNELMAJOR=$(shell echo $(KERNELVERSION)|head -c3)
@@ -16,9 +18,11 @@ CONFIG_ACERHK?=m
 obj-$(CONFIG_ACERHK) += acerhk.o
 
 EXTRA_CFLAGS+=-c -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
-INCLUDE=-I$(KERNELSRC)/include
+INCLUDE=-I$(KERNELSRC)/include -I/usr/src/linux-headers-$(KVER_STRIP)-686-pae/include/ -I/usr/src/linux-headers-$(KVER)/arch/x86/include/generated -I/usr/src/linux-headers-$(KVER_STRIP)-common/include -I/usr/src/linux-headers-$(KVER_STRIP)-common/arch/x86/include
 
-ifeq ($(KERNELMAJORFIRST), 3)
+ifeq ($(KERNELMAJORFIRST), 5)
+TARGET := acerhk.ko
+else ifeq ($(KERNELMAJORFIRST), 3)
 TARGET := acerhk.ko
 else ifeq ($KERNELMAJOR), 2.6)
 TARGET := acerhk.ko
@@ -41,7 +45,7 @@ export:
 	sh export.sh
 
 acerhk.ko: $(SOURCE) acerhk.h
-	$(MAKE) -C $(KERNELSRC) SUBDIRS=$(shell pwd) CONFIG_FUNCTION_TRACER= modules
+	$(MAKE) -C $(KERNELSRC) M=$(shell pwd) CONFIG_FUNCTION_TRACER= modules
 
 acerhk.o: $(SOURCE) acerhk.h
 	$(CC) $(INCLUDE) $(CFLAGS) -DMODVERSIONS -DMODULE -D__KERNEL__ -o $(TARGET) $(SOURCE)
