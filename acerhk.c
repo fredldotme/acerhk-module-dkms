@@ -2310,8 +2310,9 @@ static void acerhk_poll_event(struct timer_list *indx)
     send_key_event(transl8_key_code(get_fnkey_event()));
   }
 #endif
-  acerhk_timer_poll.expires = jiffies + acerhk_polling_delay;
-  add_timer(&acerhk_timer_poll);
+  //acerhk_timer_poll.expires = jiffies + acerhk_polling_delay;
+  //add_timer(&acerhk_timer_poll);
+  mod_timer(&acerhk_timer_poll, jiffies + acerhk_polling_delay);
 }
 
 /* blinking timer handler; added by Antonio Cuni */
@@ -2394,8 +2395,9 @@ static void start_polling(void)
 /*    acerhk_timer_poll.function = acerhk_poll_event;
     acerhk_timer_poll.expires = jiffies + acerhk_polling_delay;
     acerhk_timer_poll.data = get_nr_events();*/
-    timer_setup(&acerhk_timer_poll, acerhk_poll_event, jiffies + acerhk_polling_delay);
-    add_timer(&acerhk_timer_poll);
+    timer_setup(&acerhk_timer_poll, acerhk_poll_event, 0);
+    mod_timer(&acerhk_timer_poll, jiffies + acerhk_polling_delay);
+    //add_timer(&acerhk_timer_poll);
     acerhk_polling_state = 1;
     if (acerhk_type == TM_dritek) {
       printk(KERN_INFO"acerhk: Your hardware does not need polling enabled for hotkeys to work, "
@@ -2418,8 +2420,9 @@ static void start_blinking(void)
     acerhk_timer_blinking.expires = jiffies + acerhk_blueled_blinking_delay;
     acerhk_timer_blinking.data = 0; // not used
     */
-    timer_setup(&acerhk_timer_blinking, acerhk_blink_event, jiffies + acerhk_blueled_blinking_delay);
-    add_timer(&acerhk_timer_blinking);
+    timer_setup(&acerhk_timer_blinking, acerhk_blink_event, 0);
+    mod_timer(&acerhk_timer_blinking, jiffies + acerhk_blueled_blinking_delay);
+    //add_timer(&acerhk_timer_blinking);
     acerhk_blueled_blinking = 0;
     if (verbose)
       printk(KERN_INFO "acerhk: starting blueled blinking\n");
